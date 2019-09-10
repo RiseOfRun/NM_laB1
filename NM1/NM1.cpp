@@ -3,9 +3,91 @@
 
 #include "pch.h"
 #include <iostream>
+#include <math.h>
+typedef float form;
+class Matrix
+{
+public:
+	form **A;
+	int n;
+	int m;
+	int k;
+	Matrix(int n, int m)
+	{
+		this->n = n;
+		this->m = m;
+		k = m / 2;
+		A = new form*[n];
+		for (size_t i = 0; i < n; i++)
+		{
+			
+			A[i] = new form[m];
+			for (size_t j = 0; j < m; j++)
+			{
+				A[i][j] = 0;
+			}
+		}
+	}
+
+	Matrix(Matrix *M)
+	{
+		A = M->A;
+		this->k = M->k;
+		this->m = M->m;
+		this->n = M->n;
+	}
+	
+	form & operator ()(const int &row, const int &column) const
+	{
+		bool contains = false; //проверить
+		if (abs(row - column) > k)
+		{
+			form tmp = 0;
+			return tmp;
+		}
+		int di = k + 1;
+		return A[row][di - row + column];
+	}
+
+	/*form operator ()(const int i, const int j) const
+	{
+		return 0;
+	}*/
+};
+
 
 int main()
 {
+	Matrix M(3, 4);
+	M(2, 2) = 4;
+	Matrix L(M);
+	Matrix U(M);
+	M(2, 2) = 5;
+	for (int i = 0; i < M.n; i++)
+	{
+		form sum = 0;
+		for (int k = abs(i-(M.k+1)); k < i; k++)
+		{
+			sum += L(i, k)*U(k, i);
+		}
+		U(i, i) = M(i, i) - sum;
+		for (int j = i+1; j < i+M.k; j++)
+		{
+			sum = 0;
+			for (int k = i-M.k+1; k < i; k++)
+			{
+				sum += L(i, k)*U(k, j);
+			}
+			U(i, j) = M(i, j) - sum;
+
+			sum = 0;
+			for (int k = i-M.k+1; k < i; k++)
+			{
+				sum += L(j, k)*U(k, i);
+			}
+			L(i, j) = (M(i, j) - sum) / U(i,i);
+		}
+	}
     std::cout << "Hello World!\n"; 
 }
 
